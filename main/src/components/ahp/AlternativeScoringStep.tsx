@@ -3,7 +3,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { PairwiseMatrix } from "./PairwiseMatrix";
 import { ConsistencyGauge } from "./ConsistencyGauge";
 import { useAHP } from "@/hooks/useAHP";
-
+import { Brain } from "lucide-react";
 interface AlternativeScoringStepProps {
   ahp: ReturnType<typeof useAHP>;
 }
@@ -42,6 +42,27 @@ export function AlternativeScoringStep({ ahp }: AlternativeScoringStepProps) {
               matrix={ahp.altMatrices[i]}
               onChange={(a, b, v) => ahp.updateAltCell(i, a, b, v)}
             />
+            
+            {/* Interprétation locale */}
+            {ahp.alternatives.length > 0 && (
+              <div className="mt-4 p-4 rounded-xl bg-secondary/10 border border-secondary/20 flex gap-3 items-start">
+                <Brain className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="text-sm font-semibold text-secondary mb-1">Classement sur ce critère</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {(() => {
+                      const w = ahp.altResults[i]?.weights;
+                      if (!w || w.length === 0) return "";
+                      const maxWeight = Math.max(...w);
+                      const bestIdx = w.indexOf(maxWeight);
+                      const bestAlt = ahp.alternatives[bestIdx];
+                      const isOk = (ahp.altResults[i]?.CR ?? 0) < 0.1;
+                      return `En se basant uniquement sur le critère "${c}", l'alternative "${bestAlt}" est jugée la meilleure avec un score local de ${(maxWeight * 100).toFixed(1)}%. ${!isOk ? "Attention, vos notations ici sont incohérentes." : ""}`;
+                    })()}
+                  </p>
+                </div>
+              </div>
+            )}
           </TabsContent>
         ))}
       </Tabs>

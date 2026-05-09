@@ -86,6 +86,27 @@ const Index = () => {
                   matrix={ahp.criteriaMatrix}
                   onChange={ahp.updateCriteriaCell}
                 />
+
+                {/* Interprétation en temps réel */}
+                {ahp.criteria.length > 0 && (
+                  <div className="mt-6 p-4 rounded-xl bg-secondary/10 border border-secondary/20 flex gap-3 items-start">
+                    <Brain className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="text-sm font-semibold text-secondary mb-1">Interprétation des pondérations</h4>
+                      <p className="text-sm text-muted-foreground">
+                        {(() => {
+                          const w = ahp.criteriaResult.weights;
+                          if (!w || w.length === 0) return "";
+                          const maxWeight = Math.max(...w);
+                          const bestIdx = w.indexOf(maxWeight);
+                          const bestCrit = ahp.criteria[bestIdx];
+                          const isOk = ahp.criteriaResult.CR < 0.1;
+                          return `D'après vos comparaisons, le critère "${bestCrit}" est votre priorité principale (${(maxWeight * 100).toFixed(1)}% du poids total). L'ensemble de vos jugements est ${isOk ? "mathématiquement cohérent." : "incohérent, nous vous recommandons d'ajuster les curseurs pour éviter les contradictions."}`;
+                        })()}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </Card>
             )}
 

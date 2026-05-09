@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Trophy, Download, FileJson, AlertTriangle, Sparkles } from "lucide-react";
+import { Trophy, Download, FileJson, AlertTriangle, Sparkles, Brain } from "lucide-react";
 import { ConsistencyGauge } from "./ConsistencyGauge";
 import { useAHP } from "@/hooks/useAHP";
 import { exportJSON, exportPDF } from "@/lib/exportAHP";
@@ -33,6 +33,28 @@ export function DashboardStep({ ahp }: DashboardStepProps) {
             <p className="text-muted-foreground mt-2">
               Score pondéré : {(winner?.score * 100).toFixed(2)}%
             </p>
+
+            {/* Interprétation Finale */}
+            {winner && (
+              <div className="mt-5 max-w-lg p-4 rounded-xl bg-secondary/10 border border-secondary/20 flex gap-3 items-start">
+                <Brain className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="text-sm font-semibold text-secondary mb-1">Conclusion mathématique</h4>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {(() => {
+                      const maxCritWeight = Math.max(...ahp.criteriaResult.weights);
+                      const bestCritIdx = ahp.criteriaResult.weights.indexOf(maxCritWeight);
+                      const bestCrit = ahp.criteria[bestCritIdx];
+                      
+                      // On vérifie le score du vainqueur sur le critère dominant
+                      const winnerScoreOnBestCrit = ahp.alternativeScores[winner.index]?.[bestCritIdx] ?? 0;
+                      
+                      return `L'alternative "${winner.name}" est recommandée car elle maximise la valeur globale selon vos préférences. Sa victoire s'explique notamment par sa performance sur le critère "${bestCrit}" (votre priorité n°1). L'algorithme a multiplié le poids de chaque critère par les scores locaux pour obtenir ce résultat mathématiquement optimal.`;
+                    })()}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-wrap gap-2">
